@@ -1,14 +1,19 @@
+# CMakeLists.txt
 cmake_minimum_required(VERSION 3.10)
-project(ParallelImageProcessing)
+project(parallel_image_flip)
 
-# Specify C++ standard - we need at least C++11 for OpenCV
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+# Find packages
 find_package(OpenCV REQUIRED)
 find_package(MPI REQUIRED)
 
-include_directories(${OpenCV_INCLUDE_DIRS} ${MPI_INCLUDE_PATH} include)
+# Add executable
+add_executable(parallel_flip src/main.cpp)
 
-add_executable(main parallel_io.cpp)
-target_link_libraries(main ${OpenCV_LIBS} ${MPI_LIBRARIES})
+# Include directories
+target_include_directories(parallel_flip PRIVATE ${OpenCV_INCLUDE_DIRS} ${MPI_INCLUDE_PATH})
+
+# Link libraries
+target_link_libraries(parallel_flip PRIVATE ${OpenCV_LIBS} ${MPI_CXX_LIBRARIES})
+
+# Add MPI compile flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
