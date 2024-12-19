@@ -1,4 +1,4 @@
-CMakeFiles/*
+**/*CMakeFiles/*
 main
 .cache/*
 .DS_Store
