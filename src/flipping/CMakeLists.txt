@@ -7,7 +7,7 @@ find_package(OpenCV REQUIRED)
 find_package(MPI REQUIRED)
 
 # Add executable
-add_executable(parallel_flip src/main.cpp)
+add_executable(parallel_flip main.cpp)
 
 # Include directories
 target_include_directories(parallel_flip PRIVATE ${OpenCV_INCLUDE_DIRS} ${MPI_INCLUDE_PATH})

@@ -1,0 +1,193 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\begin{document}
+\begin{algorithm}
+	\caption{Parallel Horizontal Image Flip}
+	\begin{algorithmic}[1]
+		\Procedure{FlipHorizontalParallel}{shared\_data, rows, cols, channels, rank, num\_processes}
+		\State half\_rows $\gets$ rows / 2
+		\State block\_size $\gets$ half\_rows / num\_processes
+		\State start\_row $\gets$ rank $\times$ block\_size
+		\State end\_row $\gets$ (rank + 1) $\times$ block\_size
+
+		\For each row in parallel
+		\State corresponding\_row $\gets$ rows - 1 - i
+		\State Swap(row, corresponding\_row) for all color channels
+		\EndFor
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+	\caption{Parallel Vertical Image Flip}
+	\begin{algorithmic}[1]
+		\Procedure{FlipVerticalParallel}{shared\_data, rows, cols, channels, rank, num\_processes}
+		\State block\_size $\gets$ rows / num\_processes
+		\State start\_row $\gets$ rank $\times$ block\_size
+		\State end\_row $\gets$ (rank + 1) $\times$ block\_size
+
+		\For{i = start\_row to end\_row - 1}
+		\For{j = 0 to (cols / 2) - 1}
+		\State left\_idx $\gets$ (i $\times$ cols + j)
+		\State right\_idx $\gets$ (i $\times$ cols + (cols - 1 - j))
+		\State swap(left\_idx, right\_idx) for all color channel
+		\EndFor
+		\EndFor
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{90-Degree Image Rotation (Parallel with MPI)}
+\begin{algorithmic}[1]
+\Procedure{RotateImage90Parallel}{input\_data, output\_data, rows, cols, channels, rank, num\_processes}
+\State block\_size $\gets$ rows / num\_processes
+\State start\_row $\gets$ rank $\times$ block\_size
+\State end\_row $\gets$ (rank+1) $\times$ block\_size
+\If{direction = CLOCKWISE}
+    \For{r = start\_row to end\_row-1}
+        \For{c = 0 to cols-1}
+                \State out\_r $\gets$ c
+                \State out\_c $\gets$ rows - 1 - r
+                \State Assign at $(out\_r, out\_c)$ with value at $(in\_c, in\_r)$
+        \EndFor
+    \EndFor
+\Else \Comment{COUNTERCLOCKWISE}
+    \For{r = start\_row to end\_row-1}
+        \For{c = 0 to cols-1}
+                \State out\_r $\gets$ cols - 1 - c
+                \State out\_c $\gets$ r
+                \State Assign at $(out\_r, out\_c)$ with value at $(in\_c, in\_r)$
+        \EndFor
+    \EndFor
+\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Parallel Image Color Channel Transformation}
+\begin{algorithmic}[1]
+\Require Image of dimensions $rows \times cols$, number of processes $P$
+\Require Channel increments: $red\_inc$, $green\_inc$, $blue\_inc$
+\State $block\_size \gets \lfloor rows/P \rfloor$
+\State $start\_row \gets rank \times block\_size$
+\State $end\_row \gets \begin{cases} 
+rows & \text{if } rank = P-1 \\
+(rank + 1) \times block\_size & \text{otherwise}
+\end{cases}$
+\For{$r \gets start\_row$ to $end\_row - 1$}
+    \For{$c \gets 0$ to $cols - 1$}
+        \State $new\_color \gets$ Calculate the new magnitude of each channels
+        \State $row[r, c] \gets new\_color$
+    \EndFor
+\EndFor
+\State \textbf{Synchronize} all processes
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{1D Fast Fourier Transform}
+\begin{algorithmic}[1]
+\Procedure{FFT}{x}
+    \State n $\gets$ length(x)
+    \State bits $\gets \log_2(n)$
+    \State result $\gets$ new array of size n
+    
+    \Comment{Bit reversal stage}
+    \For{i = 0 to n-1}
+        \State result[BitReverse(i, bits)] $\gets$ x[i]
+    \EndFor
+    
+    \Comment{Butterfly operations}
+    \For{stage = 1 to bits}
+        \State m $\gets 2^{\text{stage}}$
+        \State half\_m $\gets$ m/2
+        \State w\_m $\gets e^{-2\pi i/m}$
+        
+        \For{k = 0 to n-1 step m} in parallel
+            \State w $\gets$ 1
+            \For{j = 0 to half\_m-1}
+                \State t $\gets$ w $\times$ result[k + j + half\_m]
+                \State u $\gets$ result[k + j]
+                \State result[k + j] $\gets$ u + t
+                \State result[k + j + half\_m] $\gets$ u - t
+                \State w $\gets$ w $\times$ w\_m
+            \EndFor
+        \EndFor
+    \EndFor
+    
+    \Return result
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{2D Fast Fourier Transform}
+\begin{algorithmic}[1]
+\Procedure{FFT2D}{channel}
+    \State rows $\gets$ channel.rows
+    \State cols $\gets$ channel.cols
+    \State padded\_rows $\gets$ NextPowerOf2(rows)
+    \State padded\_cols $\gets$ NextPowerOf2(cols)
+    
+    \State complex\_image $\gets$ new 2D array[padded\_rows][padded\_cols]
+    
+    \State {Convert image to complex numbers and pad}
+
+    \Comment{Apply FFT to rows}
+    \For{i = 0 to padded\_rows-1} in parallel
+        \State row $\gets$ complex\_image[i]
+        \State row $\gets$ FFT(row)
+    \EndFor
+    
+    \Comment{Apply FFT to columns}
+    \For{j = 0 to padded\_cols-1} in parallel
+        \State col $\gets$ new array[padded\_rows]
+        \State col $\gets$ FFT(col)
+    \EndFor
+    
+    \Return complex\_image
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Parallel Gaussian Blur using OpenMP}
+\begin{algorithmic}[1]
+\Require Image $I$ of size $w \times h$, radius $r$, sigma $\sigma$
+\State $k \gets$ CreateGaussianKernel($r$, $\sigma$)
+\State $T \gets$ temporary buffer of size $w \times h \times channels$
+
+\For{each pixel in each channel of a row in parallel}
+            \State $sum \gets 0$
+            \For{$i \gets -r$ \textbf{to} $r$}
+                \State $sum \gets sum + I[y,srcX,c] \times k[i+r]$
+            \EndFor
+            \State $T[y,x,c] \gets sum$
+        \EndFor
+    \EndFor
+\EndParFor
+
+\State{Implicit barrier synchronization}
+
+\For{each pixel in each channel of a column in parallel}
+            \State $sum \gets 0$
+            \For{$i \gets -r$ \textbf{to} $r$}
+                \State $sum \gets sum + T[srcY,x,c] \times k[i+r]$
+            \EndFor
+            \State $I[y,x,c] \gets sum$
+        \EndFor
+    \EndFor
+\EndParFor
+
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}

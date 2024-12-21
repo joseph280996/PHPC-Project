@@ -94,8 +94,9 @@ FlipType parseFlipType(const string &type) {
 }
 
 int main(int argc, char **argv) {
-  if (argc != 3) {
-    cout << "Usage: " << argv[0] << " <image_path> <flip_type>" << endl;
+  if (argc != 4) {
+    cout << "Usage: " << argv[0]
+         << " <image_path> <flip_type> <with_sequential>" << endl;
     cout << "flip_type: 'h' or 'horizontal' for horizontal flip" << endl;
     cout << "          'v' or 'vertical' for vertical flip" << endl;
     return -1;
@@ -136,21 +137,25 @@ int main(int argc, char **argv) {
     }
 
     // Do sequential version
-    Mat seqImage = image.clone();
-    auto start = high_resolution_clock::now();
-    if (flip_type == HORIZONTAL) {
-      flip_horizontal_sequential(seqImage);
-    } else { // VERTICAL
-      flip_vertical_sequential(seqImage);
+    const string with_sequential_flag = argv[3];
+    if (with_sequential_flag == "true") {
+      Mat seqImage = image.clone();
+      auto start = high_resolution_clock::now();
+      if (flip_type == HORIZONTAL) {
+        flip_horizontal_sequential(seqImage);
+      } else { // VERTICAL
+        flip_vertical_sequential(seqImage);
+      }
+      auto stop = high_resolution_clock::now();
+      cout << "Sequential time: "
+           << duration_cast<microseconds>(stop - start).count()
+           << " microseconds" << endl;
+      string flip_str = (flip_type == HORIZONTAL) ? "horizontal" : "vertical";
+      const char *output_dir = std::getenv("SEQ_OUTPUT_DIR");
+      string sequential_output =
+          string(output_dir) + "/sequential_" + flip_str + "_result.jpg";
+      imwrite(sequential_output, seqImage);
     }
-    auto stop = high_resolution_clock::now();
-    cout << "Sequential time: "
-         << duration_cast<microseconds>(stop - start).count() << " microseconds"
-         << endl;
-    string flip_str = (flip_type == HORIZONTAL) ? "horizontal" : "vertical";
-    string sequential_output =
-        "output/sequential/sequential_" + flip_str + "_result.jpg";
-    imwrite(sequential_output, seqImage);
 
     // Share dimensions
     dims[0] = image.rows;
@@ -187,7 +192,6 @@ int main(int argc, char **argv) {
 
   // Each process flips its portion
   if (flip_type == HORIZONTAL) {
-    ;
     // Process assigned rows if they need flipping
     flip_horizontal_parallel(sharedData, dims[0], dims[1], dims[2], rank,
                              num_processes);
@@ -208,8 +212,10 @@ int main(int argc, char **argv) {
     // Save result
     Mat result(dims[0], dims[1], CV_8UC(dims[2]), sharedData);
     string flip_str = (flip_type == HORIZONTAL) ? "horizontal" : "vertical";
+
+    const char *output_dir = std::getenv("PAR_OUTPUT_DIR");
     string parallel_output =
-        "output/parallel/parallel_" + flip_str +
+        string(output_dir) + "/parallel_" + flip_str +
         "_result.jpg"; // Also fixed "sequential" to "parallel" in the filename
     imwrite(parallel_output, result); // Changed seqImage to result
   }
