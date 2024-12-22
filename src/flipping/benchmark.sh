@@ -4,8 +4,8 @@ export SEQ_OUTPUT_DIR="$PROJECT_ROOT/output/sequential"
 export PAR_OUTPUT_DIR="$PROJECT_ROOT/output/parallel"
 
 echo "Start flipping image horizontally"
-mpirun -np 10 ./parallel_flip /Users/joseph280996/Code/School/PHPC/Project/data/input.jpg h
+mpirun -np 10 ./parallel_flip /Users/joseph280996/Code/School/PHPC/Project/data/input.jpg h true
 echo "Finished flipping image horizontally"
 echo "Start flipping image verticall"
-mpirun -np 10 ./parallel_flip /Users/joseph280996/Code/School/PHPC/Project/data/input.jpg v
+mpirun -np 10 ./parallel_flip /Users/joseph280996/Code/School/PHPC/Project/data/input.jpg v true
 echo "Finished flipping image vertically"
