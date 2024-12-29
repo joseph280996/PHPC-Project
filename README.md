@@ -19,6 +19,7 @@ gcc`)
 
 ```bash
 📁 Project/                         # Root Directory
+├── 📁 documents/                       # Folder holds all the documents in this project along with a LaTeX file for high-level pseudocode algorithm format
 ├── 📁 data/                            # Folder holds images for tests
 │   ├── 📁 scaled_images/                   # Images resized for weak scalability tests
 │   └── 📄 input.jpg                        # Base Image for resized, strong and comparison tests
