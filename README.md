@@ -19,6 +19,7 @@ gcc`)
 
 ```bash
 📁 Project/                         # Root Directory
+├── 📁 documents/                       # Folder holds all the documents in this project along with a LaTeX file for high-level pseudocode algorithm format
 ├── 📁 data/                            # Folder holds images for tests
 │   ├── 📁 scaled_images/                   # Images resized for weak scalability tests
 │   └── 📄 input.jpg                        # Base Image for resized, strong and comparison tests
@@ -53,14 +54,15 @@ gcc`)
 │   │   ├── 📄 sequential.cpp                   # Sequential implementation
 │   │   ├── 📄 strong_scale_test.sh             # Bash script that run strong scalability tests
 │   │   └── 📄 weak_scale_test.sh               # Bash script that run weak scalability tests
-│   └── 📁 rotation/                        # Rotation Implementation
-│       ├── 📄 benchmark.sh                     # Bash script that run comparison tests
-│       ├── 📄 build.sh                         # Bash script that build the program
-│       ├── 📄 CMakeLists.txt                   # cmake config
-│       ├── 📄 main.cpp                         # C++ code for both sequential and parallel with OpenMPI
-│       ├── 📄 strong_scale_test.sh             # Bash script that run strong scalability tests
-│       └── 📄 weak_scale_test.sh               # Bash script that run weak scalability tests
-├── 📄 main.ipynb                       # Jupyter Notebook that handles all plotting
+│   ├── 📁 rotation/                        # Rotation Implementation
+│   │   ├── 📄 benchmark.sh                     # Bash script that run comparison tests
+│   │   ├── 📄 build.sh                         # Bash script that build the program
+│   │   ├── 📄 CMakeLists.txt                   # cmake config
+│   │   ├── 📄 main.cpp                         # C++ code for both sequential and parallel with OpenMPI
+│   │   ├── 📄 strong_scale_test.sh             # Bash script that run strong scalability tests
+│   │   └── 📄 weak_scale_test.sh               # Bash script that run weak scalability tests
+│   │   └── 📄 weak_scale_test.sh               # Bash script that run weak scalability tests
+│   └── 📄 main.ipynb                       # Jupyter Notebook that handles all plotting
 └── 📄 README.md                        # This README
 ```
 
