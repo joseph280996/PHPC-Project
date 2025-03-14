@@ -1,7 +1,8 @@
 **/*CMakeFiles/*
 main
-.cache/*
+.cache/
 .DS_Store
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+**/*compile_commands.json
